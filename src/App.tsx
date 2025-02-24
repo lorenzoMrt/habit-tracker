@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, CheckCircle2, BarChart3, BookOpen, Users } from 'lucide-react';
 
 interface Habit {
   id: string;
   name: string;
-  category: string;
+  description: string;
   completed: boolean;
 }
 
 function App() {
-  const [habits] = useState<Habit[]>([
-    { id: '1', name: 'Meditate for 5 minutes', category: 'Mindfulness', completed: false },
-    { id: '2', name: 'Read 10 pages', category: 'Learning', completed: false },
-    { id: '3', name: 'Drink water', category: 'Health', completed: true },
-  ]);
+  const [habits, setHabits] = useState<Habit[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:8080/habits', {method: 'GET'})
+      .then(response => response.json())
+      .then(data => setHabits(data))
+      .catch(error => console.error('Error fetching habits:', error));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -54,7 +57,7 @@ function App() {
                       />
                       <div>
                         <p className="font-medium text-gray-900">{habit.name}</p>
-                        <p className="text-sm text-gray-500">{habit.category}</p>
+                        <p className="text-sm text-gray-500">{habit.description}</p>
                       </div>
                     </div>
                     <button className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700">
