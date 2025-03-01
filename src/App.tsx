@@ -10,14 +10,33 @@ interface Habit {
 
 function App() {
   const [habits, setHabits] = useState<Habit[]>([]);
-
+  const [newHabit, setNewHabit] = useState({ name: '', description: '' });
   useEffect(() => {
     fetch('http://localhost:8080/habits', {method: 'GET'})
       .then(response => response.json())
       .then(data => setHabits(data))
       .catch(error => console.error('Error fetching habits:', error));
   }, []);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewHabit(prevState => ({ ...prevState, [name]: value }));
+  };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetch('http://localhost:8080/habits', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: JSON.stringify(newHabit),
+    })
+      .then(response => response.json())
+      .then(data => setHabits(prevHabits => [...prevHabits, data]))
+      .catch(error => console.error('Error creating habit:', error));
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <nav className="bg-white shadow-sm">
@@ -38,6 +57,32 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Add New Habit</h2>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Habit Name"
+                  value={newHabit.name}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
+                />
+                <input
+                  type="text"
+                  name="description"
+                  placeholder="Habit Description"
+                  value={newHabit.description}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border rounded-lg"
+                  required
+                />
+                <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                  Add Habit
+                </button>
+              </div>
+            </form>
             <div className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-900">Today's Habits</h2>
