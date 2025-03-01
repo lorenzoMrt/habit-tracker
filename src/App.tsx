@@ -36,6 +36,21 @@ function App() {
       .then(data => setHabits(prevHabits => [...prevHabits, data]))
       .catch(error => console.error('Error creating habit:', error));
   };
+
+  const handleComplete = (id: string) => {
+    fetch(`http://localhost:8080/habits/${id}/complete`, {
+      method: 'PUT',
+    })
+      .then(response => {
+        if (response.ok) {
+          setHabits(prevHabits => prevHabits.map(habit =>
+            habit.id === id ? { ...habit, completed: true } : habit
+          ));
+        }
+      })
+      .catch(error => console.error('Error completing habit:', error));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <nav className="bg-white shadow-sm">
@@ -75,7 +90,6 @@ function App() {
                   value={newHabit.description}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border rounded-lg"
-                  required
                 />
                 <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
                   Add Habit
@@ -104,7 +118,10 @@ function App() {
                         <p className="text-sm text-gray-500">{habit.description}</p>
                       </div>
                     </div>
-                    <button className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                    <button 
+                      onClick={() => handleComplete(habit.id)}
+                      className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                    >
                       Complete
                     </button>
                   </div>
